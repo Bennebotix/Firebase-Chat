@@ -19,10 +19,6 @@
        border: 0px;
        font-family: Courier New;
       }
-      .spacer {
-       background-color: var(--colorDark) !important;
-       color: var(--colorDark) !important;
-      } 
       .header {
        background-color: var(--colorLight);
        color: var(--textColor);
@@ -242,6 +238,9 @@
           addPinnedServers(data.val());
         });
         addSpacer();
+        addSpacer();
+        addSpacer();
+        addSpacer();
         document.querySelector('#sendMessageDiv').scrollIntoView({ block: 'end',  behavior: 'smooth' });
       }
 
@@ -425,12 +424,8 @@
       }
 
       function addSpacer() {
-        var spacer = document.createElement('div');
-        spacer.classList.add('message');
-        spacer.classList.add('spacer');
-        spacer.classList.add('in');
-        spacer.innerText = '{{Spacer}}'
-        document.querySelector('#messages').appendChild(spacer);
+        var spacer = renderMessage({username: '', message: '', server: server, html: true, time: '', css: 'color: var(--darkColor) !important; background-color: var(--darkColor) !important;', rank: 'user', PFPURL: PFPURL});
+        document.querySelector('#messages').innerHTML += spacer.outerHTML;
       }
     </script>
   </body>
