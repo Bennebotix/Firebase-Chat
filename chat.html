@@ -38,6 +38,9 @@
       }
       #usernames {
        position: fixed;
+       
+       height: 100vh;
+       width: 100px;
        top: 0;
        right: 0;
       }
@@ -301,7 +304,7 @@
       }
 
       function addPinnedServers(data) {
-        document.querySelector('#pinnedServers').innerHTML = '';
+        //document.querySelector('#pinnedServers').innerHTML = '';
         for (var serverName in data.val()) {
           for (var user in data.val()[serverName].users) {
             if (user == username) {
