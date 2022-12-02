@@ -282,9 +282,7 @@
           document.querySelector('#loginMessage').innerHTML = 'Loging In...';
           document.querySelector('#loginMessage').style.color = 'white';
           checkMyDatabase();
-          chatLoop = setInterval(() => {
-            checkMyDatabase()
-          }, 4);
+          chatLoop = setInterval(checkMyDatabase, 4);
           document.querySelector('#login').classList.add('hidden');
           document.querySelector('#chat').classList.remove('hidden');
         } else {
@@ -483,7 +481,7 @@
 
           addPinnedServers(data.val());
         });
-        document.querySelector('#' + NU).scrollIntoView({
+        document.querySelector('#' + 'Bottom').scrollIntoView({
           block: 'end',
           behavior: 'smooth'
         });
