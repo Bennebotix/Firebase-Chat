@@ -184,10 +184,6 @@
       <div class="header"><span id="pinnedRoomName"></span>:<br />
         <div id="pinnedServers"></div>
       </div>
-      <br />
-      <br />
-      <br />
-      <br />
       <div id="messages"></div>
       <div id="usernames"></div>
       <div id="sendMessageDiv">
@@ -291,7 +287,6 @@
           }, 4);
           document.querySelector('#login').classList.add('hidden');
           document.querySelector('#chat').classList.remove('hidden');
-          //document.querySelector('#chat').style.display = 'grid';
         } else {
           document.querySelector('#loginMessage').innerHTML = 'Username Or Password Incorrect!';
           document.querySelector('#loginMessage').style.color = 'red';
@@ -317,11 +312,11 @@
           }
         });
         join ? daServer == '/all/' ? rank == 'admin' || rank == 'owner' ? server = daServer : null : server = daServer : null;
-        updateChat(myDatabase);
+        updateChat(myDatabase, 'Top');
       }
 
       function addPinnedServers(data) {
-        //document.querySelector('#pinnedServers').innerHTML = '';
+      	var pinnedServerContainer = document.createElement('div');
         for (var serverName in data) {
           for (var user in data[serverName].users) {
             if (user == username) {
@@ -329,10 +324,11 @@
               pinnedServer.innerText = serverName;
               pinnedServer.classList.add('pinnedServer');
               pinnedServer.setAttribute('onclick', 'joinServer(\'' + serverName + '\')');
-              document.querySelector('#pinnedServers').appendChild(pinnedServer);
+              pinnedServerContainer.appendChild(pinnedServer);
             }
           }
         }
+				document.querySelector('#pinnedServers').innerHTML = pinnedServerContainer.innerHTML;
       }
 
       async function addServerUsers(data) {
@@ -455,7 +451,7 @@
         }
       }
 
-      function addSpacer() {
+      function addSpacer(TB) {
         var spacer = renderMessage({
           username: '',
           message: '',
@@ -466,27 +462,28 @@
           rank: 'user',
           PFPURL: ''
         }, false);
-        document.querySelector('#messages').innerHTML += spacer.outerHTML;
+        space.id = TB;
+        TB == 'Top' ? document.querySelector('#messages').innerHTML = spacer.outerHTML : document.querySelector('#messages').innerHTML += spacer.outerHTML;
       }
 
-      async function updateChat(globalDatabase) {
+      async function updateChat(globalDatabase, NU) {
         myDatabase = globalDatabase;
-        document.querySelector('#usernames').innerHTML = '';
-        document.querySelector('#pinnedServers').innerHTML = '';
         await firebase.database().ref().child('servers').once('value').then(data => {
+          addSpacer('Top');
+          
           var messageContainer = document.createElement('div');
           for (var messageId in data.val()[server].messages) {
             var newRenderedMessage = renderMessage(data.val()[server].messages[messageId], true);
             newRenderedMessage ? messageContainer.appendChild(newRenderedMessage) : null;
           }
-          document.querySelector('#messages').innerHTML = messageContainer.innerHTML;
+          document.querySelector('#messages').innerHTML += messageContainer.innerHTML;
 
-          addSpacer();
+          addSpacer('Bottom');
           //addServerUsers(data.val()[server].users);
 
           addPinnedServers(data.val());
         });
-        document.querySelector('#sendMessageDiv').scrollIntoView({
+        document.querySelector('#' + NU).scrollIntoView({
           block: 'end',
           behavior: 'smooth'
         });
@@ -494,7 +491,7 @@
 
       function checkMyDatabase() {
         firebase.database().ref().once('value').then(data => {
-          JSON.stringify(myDatabase) == JSON.stringify(data.val()) ? null : updateChat(data.val())
+          JSON.stringify(myDatabase) == JSON.stringify(data.val()) ? null : updateChat(data.val(), 'Bottom')
         });
       }
 
