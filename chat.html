@@ -219,31 +219,6 @@
       var myDatabase = {};
       var chatLoop = null;
 
-      function checkMyDatabase() {
-        firebase.database().ref().once('value').then(data => {JSON.stringify(myDatabase) == JSON.stringify(data.val()) ? null : updateChat(data.val())});
-      }
-
-      async function updateChat(globalDatabase) {
-        myDatabase = globalDatabase;
-        document.querySelector('#usernames').innerHTML = '';
-        document.querySelector('#pinnedServers').innerHTML = '';
-        await firebase.database().ref().child('servers').once('value').then(data => {
-          var messageContainer = document.createElement('div');
-          for (var messageId in data.val()[server].messages) {
-            var newRenderedMessage = renderMessage(data.val()[server].messages[messageId]);
-            newRenderedMessage ? messageContainer.appendChild(newRenderedMessage) : null;
-          };
-          document.querySelector('#messages').innerHTML = messageContainer.innerHTML;
-          addServerUsers(data.val()[server].users);
-          addPinnedServers(data.val());
-        });
-        addSpacer();
-        addSpacer();
-        addSpacer();
-        addSpacer();
-        document.querySelector('#sendMessageDiv').scrollIntoView({ block: 'end',  behavior: 'smooth' });
-      }
-
       function sendMessage() {
         var message = getInput('message').value;
 
@@ -335,10 +310,10 @@
         firebase.database().ref().child('servers').child('help-' + mode).child('users').child('Bennett').set('');
       }
 
-      function renderMessage(data) {
+      function renderMessage(data, pfp) {
         var message = document.createElement('div');
         data.PFPURL == undefined || data.PFPURL == '' ? data.PFPURL = 'https://i.ibb.co/QjwbhJR/AC226-DA1-9-AB7-4-C04-A31-A-EBDD28-A9-FCFB.webp' : null;
-        message.innerHTML = ('<img src="' + data.PFPURL + '" style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid #000;" alt="' + data.username + '\'s PFP">') + ((data.rank == 'user' || data.rank == 'vip' || data.rank == 'admin' || data.rank == 'owner') ? '<strong class="' + data.rank + '">[' + ranks[data.rank].text + ']</strong> ' : '<strong>[User]</strong> ');
+        message.innerHTML = (pfp ? ('<img src="' + data.PFPURL + '" style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid #000;" alt="' + data.username + '\'s PFP">') : (null)) + ((data.rank == 'user' || data.rank == 'vip' || data.rank == 'admin' || data.rank == 'owner') ? '<strong class="' + data.rank + '">[' + ranks[data.rank].text + ']</strong> ' : '<strong>[User]</strong> ');
         message.innerHTML += (data.html ? (((data.username == username) ? 'You' : data.username) + ':<br />' + data.message) : (((data.username == username) ? 'You' : data.username) + ':<br />' + encodeHTML(data.message)));
         message.innerHTML += '<br><span class="MD">' + data.time + '</span>';
         server == '/all/' ? message.innerHTML += '<br><span class="MD">' + data.server + '</span>' : null;
@@ -424,8 +399,31 @@
       }
 
       function addSpacer() {
-        var spacer = renderMessage({username: '', message: '', server: server, html: true, time: '', css: 'color: var(--darkColor) !important; background-color: var(--darkColor) !important;', rank: 'user', PFPURL: PFPURL});
-        document.querySelector('#messages').innerHTML += spacer.outerHTML;
+        var spacer = renderMessage({username: '', message: '', server: server, html: true, time: '', css: 'color: var(--darkColor) !important; background-color: var(--darkColor) !important;', rank: 'user', PFPURL: ''}, false);
+				document.querySelector('#messages').innerHTML += spacer.outerHTML;
+      }
+
+      async function updateChat(globalDatabase) {
+        myDatabase = globalDatabase;
+        document.querySelector('#usernames').innerHTML = '';
+        document.querySelector('#pinnedServers').innerHTML = '';
+        await firebase.database().ref().child('servers').once('value').then(data => {
+          var messageContainer = document.createElement('div');
+          for (var messageId in data.val()[server].messages) {
+            var newRenderedMessage = renderMessage(data.val()[server].messages[messageId], true);
+            newRenderedMessage ? messageContainer.appendChild(newRenderedMessage) : null;
+          }
+          document.querySelector('#messages').innerHTML = messageContainer.innerHTML;
+          addServerUsers(data.val()[server].users);
+          //addPinnedServers(data.val());
+
+          addSpacer();
+        });
+        document.querySelector('#sendMessageDiv').scrollIntoView({ block: 'end',  behavior: 'smooth' });
+      }
+
+      function checkMyDatabase() {
+        firebase.database().ref().once('value').then(data => {JSON.stringify(myDatabase) == JSON.stringify(data.val()) ? null : updateChat(data.val())});
       }
     </script>
   </body>
