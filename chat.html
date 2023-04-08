@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Chat</title>
+    <style>
+      :root {
+        --textColor: #FFF;
+        --flareColor1: #00003B;
+        --flareColor2: #E10600;
+        --darkColor: #111;
+        --medColor: #171717;
+        --lightColor: #222;
+        --vipColor: #00FF41;
+        --adminColor: #0041FF;
+        --modColor: #ffa500;
+        --ownerColor: #A00;
+        --botColor: #765640;
+      }
+
+      #popups {
+        position: fixed;
+        bottom: 50px;
+        left: 50px;
+        z-index: 999999999;
+      }
+
+      .popup {
+        min-width: 400px;
+        min-height: 50px;
+        transition-duration: 1s;
+        opacity: 0;
+        z-index: 999999999;
+        margin: 5px;
+        padding: 10px;
+        text-align: center;
+        border-radius: 10px;
+        background-color: var(--medColor);
+        color: var(--textColor);
+      }
+
+      body {
+        background-color: var(--darkColor);
+        margin: 0px;
+        padding: 0px;
+        border: 0px;
+        font-family: Courier New;
+      }
+
+      .header {
+        background-color: var(--lightColor);
+        color: var(--textColor);
+        font-size: 38px;
+        width: 100%;
+        text-align: center;
+        padding: 7px;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+
+      #messages {
+        margin-right: 150px;
+        margin-bottom: 10px;
+        margin-left: 150px;
+        margin-top: 0;
+      }
+
+      #usernames {
+        background-color: var(--lightColor);
+        height: 100vh;
+        width: 100px;
+        overflow-y: scroll;
+        padding: 10px;
+        position: fixed;
+        top: 0;
+        right: 0;
+      }
+
+      .message {
+        margin: 10px;
+        width: 100%;
+        text-align: center;
+        color: var(--textColor);
+        word-break: break-word;
+        padding: 5px;
+        font-size: 20px;
+        display: block;
+      }
+
+      .out {
+        text-align: right;
+      }
+
+      .in {
+        text-align: left;
+      }
+
+      #sendMessageDiv {
+        font-family: Courier New;
+        font-size: 50px;
+        width: 100%;
+        text-align: center;
+        background-color: var(--lightColor);
+        color: var(--textColor);
+        position: fixed;
+        bottom: 0;
+        left: 0;
+      }
+
+      .button {
+        background-color: var(--flareColor1);
+        color: white;
+        border-radius: 10px;
+        padding: 10px;
+        margin: 1%;
+        text-align: center;
+        width: 13%;
+        border: none;
+        height: 50px;
+        font-size: 20px;
+        font-family: Courier New;
+      }
+
+      .inputs {
+        background-color: var(--darkColor);
+        font-family: Courier New;
+        color: white;
+        font-size: 20px;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      #modal {
+        width: 50%;
+        height: 50%;
+        background-color: var(--lightColor);
+        border-radius: 10px;
+        margin: 0px;
+        padding: 0px;
+        border: 0px;
+        text-align: center;
+        position: fixed;
+        translate: 50% 50%;
+      }
+
+      #loginButton {
+        width: 40% !important;
+      }
+
+      #loginDiv {
+        margin: 20px;
+      }
+
+      #loginTitle {
+        color: var(--textColor);
+        font-size: 38px;
+      }
+
+      #loginMessage {
+        color: var(--lightColor);
+        font-size: 18px;
+      }
+
+      .user {
+        width: 70px;
+        min-height: 100px;
+        background-color: var(--darkColor);
+        font-size: 12px;
+        margin: 5px;
+        border-radius: 10px;
+        text-align: center;
+        color: var(--textColor);
+        word-break: break-word;
+        border: none;
+        font-family: Courier New;
+        padding: 5px;
+      }
+
+      .pinnedServer {
+        width: 70px;
+        min-height: 100px;
+        background-color: var(--darkColor);
+        font-size: 12px;
+        margin: 5px;
+        border-radius: 10px;
+        text-align: center;
+        color: var(--textColor);
+        word-break: break-word;
+        border: none;
+        font-family: Courier New;
+        padding: 5px;
+      }
+
+      .MD {
+        font-size: 13px;
+      }
+
+      .vipRank {
+        color: var(--vipColor) !important;
+      }
+
+      .adminRank {
+        color: var(--adminColor) !important;
+      }
+
+      .modRank {
+        color: var(--modColor) !important;
+      }
+
+      .ownerRank {
+        color: var(--ownerColor) !important;
+      }
+
+      .botRank {
+        color: var(--botColor) !important;
+      }
+
+      .pfp {
+        margin: 5px;
+        margin-bottom: -23px;
+      }
+
+      #pinnedServers {
+        background-color: var(--lightColor);
+        height: 100vh;
+        width: 100px;
+        overflow-y: scroll;
+        padding: 10px;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <div id="popups"></div>
+    <div id="chat" class="hidden">
+      <div class="header"><span id="pinnedServerName"></span>:</div>
+      <div id="messages"></div>
+      <div id="sendMessageDiv">
+        <input class="inputs" type="text" id="message" placeholder="Send A Message!" /><button class="button" onclick="sendMessage()"><strong>Send!</strong></button>
+      </div>
+      <div id="pinnedServers"></div>
+      <div id="usernames"></div>
+    </div>
+    <div id="login">
+      <div id="modal">
+        <br />
+        <strong id="loginTitle">Log In</strong>
+        <br />
+        <strong id="loginMessage">{{loginmessage}}</strong>
+        <br />
+        <div id="loginDiv">
+          <input class="inputs" type="text" id="username" placeholder="Username" required /><br /><input class="inputs" type="password" id="password" placeholder="Password" /><br /><button class="button" id="loginButton" onclick="login()"><strong>Go!</strong></button>
+        </div>
+      </div>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase.js"></script>
+    <script>
+     var delay = 200;
+     var checkMessageKey = (e) => {
+        ((e.code == 'Enter') ? sendMessage() : null);
+      }
+      var encodeUnicode = (str) => {
+        return str.replace(/[\u00A0-\u9999<>\&]/g, (i) => {
+          return '&#' + i.charCodeAt(0) + ';'
+        })
+      };
+      var firebaseConfig = {
+        apiKey: "AIzaSyD0_mpCGorzpeHPRqbm3c9-QUBtDsLIfq8",
+        authDomain: "chat-fa8c2.firebaseapp.com",
+        projectId: "chat-fa8c2",
+        storageBucket: "chat-fa8c2.appspot.com",
+        messagingSenderId: "849058966010",
+        appId: "1:849058966010:web:c32a93d5a6263064085c43",
+        measurementId: "G-TP9TZRCGHJ"
+      };
+
+      firebase.initializeApp(firebaseConfig);
+
+      var server = 'main';
+      var username = '';
+      var password = '';
+      var ranks = {
+        user: {
+          text: 'User'
+        },
+        vip: {
+          text: 'VIP'
+        },
+        mod: {
+          text: 'Mod'
+        },
+        admin: {
+          text: 'Admin'
+        },
+        owner: {
+          text: 'Owner'
+        },
+        bot: {
+          text: 'Bot'
+        }
+      };
+      var myDatabase = {};
+      var chatLoop = null;
+
+      async function sendMessage() {
+        var message = getInput('message').value;
+
+        var muted = false;
+
+        await firebase.database().ref().child('servers').child(server).child('mutes').child(username).once('value').then(data => {muted = ((data.val() == '') ? true : false)});
+
+        if (!muted) {
+          message != '' ? saveMessage(username, message) : null;
+          getInput('message').value = '';
+        } else {
+          getInput('message').value = 'You Have Been Muted!';
+        }
+      }
+
+      function getInput(id) {
+        return document.querySelector('#' + id);
+      }
+
+      async function userExists(providedUsername) {
+        var doesUserExist = false;
+
+        await firebase.database().ref().child('users').once('value').then(data => {
+          for (var userName in data.val()) {
+            if (providedUsername == userName) {
+              doesUserExist = true
+            }
+          }
+        });
+
+        return doesUserExist;
+      }
+
+      async function login() {
+        username = getInput('username').value;
+
+        password = '';
+
+        kickedReason = [];
+
+        if (userExists(username)) {
+          await firebase.database().ref().child('users').child(username).once('value').then(data => {
+            password = data.val().password;
+            kickedReason = [data.val().isKicked, ((data.val().kickReason) ? data.val().kickReason : null)];
+          });
+        }
+
+        if (password == getInput('password').value) {
+          if (!kickedReason[0]) {
+            document.querySelector('#loginMessage').innerHTML = 'Loging In...';
+            document.querySelector('#loginMessage').style.color = 'white';
+            checkMyDatabase();
+            chatLoop = setInterval(checkMyDatabase, delay);
+            document.querySelector('#login').classList.add('hidden');
+            document.querySelector('#chat').classList.remove('hidden');
+            document.querySelector('#chat').style.display = 'grid';
+           
+          } else {
+            document.querySelector('#loginMessage').innerHTML = 'This User Is Kicked Because: ' + kickedReason[1];
+            document.querySelector('#loginMessage').style.color = 'red';
+          }
+        } else {
+          document.querySelector('#loginMessage').innerHTML = 'Username Or Password Incorrect!';
+          document.querySelector('#loginMessage').style.color = 'red';
+        }
+      }
+
+      function getTimeAndDate() {
+        var date = new Date();
+        var h = date.getHours()
+        var m = date.getMinutes();
+        return ('on ' + ((date.getMonth() + 1) + '/' + (date.getDate()) + '/' + (date.getFullYear().toString().replace('20', ''))) + ' at ' + ((h > 12) ? (h-12 + ':' + (((m).toString().length == 1) ? '0' + (m) : m) + ' PM') : (h + ':' + (((m).toString().length == 1) ? '0' + (m) : m) + ' AM')));
+      }
+
+      async function joinServer(daServer) {
+        var rank = '';
+        await firebase.database().ref().child('users').child(username).once('value').then(data => {
+          rank = data.val().rank ? data.val().rank : 'user'
+        });
+        var join = false;
+        await firebase.database().ref().child('servers').child(daServer).child('users').once('value').then(data => {
+          for (var user in data.val()) {
+            user == username ? join = true : null;
+          }
+        });
+        join ? server = daServer : null;
+        updateChat(myDatabase);
+      }
+
+      function popup(message, length) {
+        var popupElement = document.createElement("div");
+        popupElement.classList.add("popup");
+        popupElement.innerHTML = message;
+        document.querySelector('#popups').appendChild(popupElement)
+        popupElement.style.opacity = 1;
+        setTimeout(() => {
+          popupElement.style.opacity = 0;
+        }, length);
+      }
+
+      function addPinnedServers(data) {
+        var pinnedServerContainer = document.createElement('div');
+        for (var serverName in data) {
+          for (var user in data[serverName].users) {
+            if (user == username) {
+              var pinnedServer = document.createElement('button');
+              data[serverName].PFPURL == undefined || data[serverName].PFPURL == '' ? data[serverName].PFPURL = 'https://i.ibb.co/hdn4FzD/35-A6-D2-D3-8-EBC-4-DE8-9414-72-E2-AAFAE0-BC.jpg' : null;
+              pinnedServer.innerHTML = '<img src="' + data[serverName].PFPURL + '" style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid #000;" alt="' + 'Server ' + serverName + '\'s PFP"><br />' + encodeUnicode(serverName);
+              pinnedServer.classList.add('pinnedServer');
+              pinnedServer.setAttribute('onclick', 'joinServer(\'' + serverName + '\')');
+              serverName == server ? pinnedServer.style.boxShadow = '0 0 10px 0px var(--flareColor2)' : null;
+              pinnedServerContainer.appendChild(pinnedServer);
+            }
+          }
+        }
+        pinnedServerContainer.innerHTML += '<br /><br /><br /><br /><br />';
+        document.querySelector('#pinnedServers').innerHTML = pinnedServerContainer.innerHTML;
+        document.querySelector('#pinnedServerName').innerText = server;
+      }
+
+      async function addServerUsers(data) {
+        var usernamesContainer = document.createElement('div');
+        for (var userName in data) {
+          await firebase.database().ref().child('users').child(userName).once('value').then(userDataRaw => {
+            if (userDataRaw.exists()) {
+              var userData = userDataRaw.val();
+              userData.PFPURL == undefined || userData.PFPURL == '' ? userData.PFPURL = 'https://i.ibb.co/QjwbhJR/AC226-DA1-9-AB7-4-C04-A31-A-EBDD28-A9-FCFB.webp' : null;
+              var userElement = document.createElement('div');
+              userElement.classList.add('user');
+              userElement.innerHTML = '<img class="pfp" src="' + userData.PFPURL + '" style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid #000;" alt="' + userData.username + '\'s PFP"><br /><br /><br />' + ((userData.rank == 'user' || userData.rank == 'vip' || userData.rank == 'mod' || userData.rank == 'admin' || userData.rank == 'owner' || userData.rank == 'bot') ? '<strong class="' + userData.rank + 'Rank">[' + ranks[userData.rank].text + ']</strong><br />' : '<strong>[User]</strong><br />') + userName + '<br /><br />';
+              userName == username ? userElement.style.boxShadow = '0 0 10px 0px var(--flareColor2)' : null;
+              usernamesContainer.appendChild(userElement);
+            }
+          });
+        }
+        usernamesContainer.innerHTML += '<br /><br /><br /><br />';
+        document.querySelector('#usernames').innerHTML = usernamesContainer.innerHTML;
+      }
+
+      function help(reason) {
+        firebase.database().ref().child('servers').child('help-' + reason).child('users').child('Bennett').set('');
+        firebase.database().ref().child('servers').child('help-' + reason).child('users').child(username).set('');
+        firebase.database().ref().child('servers').child('help-' + reason).child('users').child('creator').set(username);
+        firebase.database().ref().child('servers').child('help-' + reason).child('PFPURL').set('https://i.ibb.co/hdn4FzD/35-A6-D2-D3-8-EBC-4-DE8-9414-72-E2-AAFAE0-BC.jpg');
+        joinServer('help-' + reason);
+      }
+
+      function pm(who) {
+        firebase.database().ref().child('servers').child(username + ' to ' + who).child('users').child(who).set('');
+        firebase.database().ref().child('servers').child(username + ' to ' + who).child('users').child(username).set('');
+        firebase.database().ref().child('servers').child(username + ' to ' + who).child('creator').set(username);
+        firebase.database().ref().child('servers').child(username + ' to ' + who).child('PFPURL').set('https://i.ibb.co/hdn4FzD/35-A6-D2-D3-8-EBC-4-DE8-9414-72-E2-AAFAE0-BC.jpg');
+        joinServer(username + ' to ' + who);
+      }
+
+      function inviteAll() {
+        firebase.database().ref().child('users').once('value').then(data => {
+          for (var userName in data.val()) {
+            firebase.database().ref().child('servers').child(server).child('users').child(userName).set('');
+          }
+        });
+      }
+
+      function renderMessage(data, load) {
+        var message = document.createElement('div');
+        data.PFPURL == undefined || data.PFPURL == '' ? data.PFPURL = 'https://i.ibb.co/QjwbhJR/AC226-DA1-9-AB7-4-C04-A31-A-EBDD28-A9-FCFB.webp' : null;
+        message.innerHTML = (load ? ('<img class="pfp" src="' + data.PFPURL + '" style="width: 50px; height: 50px; border-radius: 50%; border: 3px solid #000;" alt="' + data.username + '\'s PFP">') : (null)) + (load ? ((data.rank == 'user' || data.rank == 'vip' || data.rank == 'mod' || data.rank == 'admin' || data.rank == 'owner' || data.rank == 'bot') ? '<strong class="' + data.rank + 'Rank">[' + ranks[data.rank].text + ']' + ((data.creator) ? ('&nbsp;<span style="color: var(--ownerColor) !important;">Server Creator</span>') : '') + '</strong> ' : '<strong>[User]' + ((data.creator) ? ('&nbsp;<span style="color: var(--ownerColor) !important;">Server Creator</span>') : '') + '</strong> ') : null);
+        message.innerHTML += (data.html ? (((data.username == username) ? 'You' : data.username) + ':<br /><br />' + data.message) : (((data.username == username) ? 'You' : data.username) + ':<br /><br />' + encodeUnicode(data.message)));
+        message.innerHTML += '<br><span class="MD">' + data.time + '</span>';
+        server == 'all' ? message.innerHTML += '<br><span class="MD">' + data.server + '</span>' : null;
+        message.classList.add('message');
+        message.style = data.css;
+        message.classList.add((data.username == username) ? 'out' : 'in');
+        return message;
+      }
+
+      async function saveMessage(name, message) {
+        var messageRef = firebase.database().ref().child('servers').child(server).child('messages');
+        var css = '';
+        var rank = '';
+        await firebase.database().ref().child('users').child(username).once('value').then(data => {
+          css = data.val().messageCSS ? data.val().messageCSS : '';
+          rank = data.val().rank ? data.val().rank : 'user';
+        });
+        var serverCreator = '';
+        await firebase.database().ref().child('servers').child(server).child('creator').once('value').then(data => {
+          serverCreator = data.val() ? data.val() : 'Bennett';
+        });
+        var PFPURL = '';
+        await firebase.database().ref().child('users').child(username).once('value').then(data => {
+          PFPURL = data.val().PFPURL ? data.val().PFPURL : ''
+        });
+        if (message.indexOf('/link ') == 0) {
+          var newMessageRef = messageRef.push();
+          newMessageRef.set({
+            username: name,
+            message: '<a href=\"' + message.replace('/link ', '') + '\">' + message.replace('/link ', '') + '</a>',
+            html: true,
+            time: getTimeAndDate(),
+            css: css,
+            rank: rank,
+            PFPURL: PFPURL,
+            creator: (serverCreator == username)
+          });
+        } else if (message.indexOf('/img ') == 0) {
+          var newMessageRef = messageRef.push();
+          newMessageRef.set({
+            username: name,
+            message: '<img src=\"' + message.replace('/img ', '') + '\" alt=\"' + message.replace('/img ', '') + '\" style="width: 100px;" align="top" />',
+            html: true,
+            time: getTimeAndDate(),
+            css: css,
+            rank: rank,
+            PFPURL: PFPURL,
+            creator: (serverCreator == username)
+          });
+        } else if (message.indexOf('/html ') == 0) {
+          if (rank == 'admin' || rank == 'owner') {
+            var newMessageRef = messageRef.push();
+            newMessageRef.set({
+              username: name,
+              message: message.replace('/html ', ''),
+              html: true,
+              time: getTimeAndDate(),
+              css: css,
+              rank: rank,
+              PFPURL: PFPURL,
+              creator: (serverCreator == username)
+            });
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Admin Only)', 10000);
+          }
+        } else if (message.indexOf('/messageCSS ') == 0) {
+          if (rank == 'vip' || rank == 'mod' || rank == 'admin' || rank == 'owner') {
+            firebase.database().ref().child('users').child(username).child('messageCSS').set(message.replace('/messageCSS ', ''));
+          } else {
+            popup('You Don\'t Have Acces To This Command! (VIP And Up)', 10000);
+          }
+        } else if (message.indexOf('/kickUser ') == 0) {
+          var userNameRank = '';
+          firebase.database().ref().child('users').child(message.replace('/kickUser ', '').split(' ')[0]).child('rank').once('value').then(data => {userNameRank = data.val()});
+          if ((rank == 'admin' || rank == 'owner') && ((userNameRank != 'admin' && userNameRank != 'owner') || rank == 'owner')) {
+            firebase.database().ref().child('users').child(message.replace('/kickUser ', '').split(' ')[0]).child('isKicked').set(true);
+            firebase.database().ref().child('users').child(message.replace('/kickUser ', '').split(' ')[0]).child('kickReason').set(message.replace('/kickUser ' + message.replace('/kickUser ', '').split(' ')[0], ''));
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Admin Only)<br />Or You Are Trying To Excecute This Command On An Admin!', 10000);
+          }
+        } else if (message.indexOf('/allowUser ') == 0) {
+          var userNameRank = '';
+          firebase.database().ref().child('users').child(message.replace('/allowUser ', '').split(' ')[0]).child('rank').once('value').then(data => {userNameRank = data.val()});
+          if ((rank == 'admin' || rank == 'owner') && ((userNameRank != 'admin' && userNameRank != 'owner') || rank == 'owner')) {
+            firebase.database().ref().child('users').child(message.replace('/allowUser ', '')).child('isKicked').set(true);
+            firebase.database().ref().child('users').child(message.replace('/allowUser ', '')).child('kickReason').set(null);
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Admin Only)<br />Or You Are Trying To Excecute This Command On An Admin!', 10000);
+          }
+        } else if (message.indexOf('/showMessageBreaks ') == 0) {
+          if (rank == 'vip' || rank == 'mod' || rank == 'admin' || rank == 'owner') {
+            firebase.database().ref().child('users').child(username).child('showMessageBreaks').set(message.replace('/showMessageBreaks ', ''));
+          } else {
+            popup('You Don\'t Have Acces To This Command! (VIP And Up)', 10000);
+          }
+        } else if (message.indexOf('/muteUser ') == 0) {
+          var userNameRank = '';
+          firebase.database().ref().child('users').child(message.replace('/muteUser ', '').split(' ')[0]).child('rank').once('value').then(data => {userNameRank = data.val()});
+          if ((rank == 'mod' || rank == 'admin' || rank == 'owner') && ((userNameRank != 'admin' && userNameRank != 'owner') || rank == 'owner')) {
+            firebase.database().ref().child('servers').child(server).child('mutes').child(message.replace('/muteUser ', '')).set('');
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Mod And Up)<br />Or You Are Trying To Excecute This Command On An Admin!', 10000);
+          }
+        } else if (message.indexOf('/unmuteUser ') == 0) {
+          var userNameRank = '';
+          firebase.database().ref().child('users').child(message.replace('/unmuteUser ', '').split(' ')[0]).child('rank').once('value').then(data => {userNameRank = data.val()});
+          if ((rank == 'mod' || rank == 'admin' || rank == 'owner') && ((userNameRank != 'admin' && userNameRank != 'owner') || rank == 'owner')) {
+            firebase.database().ref().child('servers').child(server).child('mutes').child(message.replace('/unmuteUser ', '')).set(null);
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Mod And Up)<br />Or You Are Trying To Excecute This Command On An Admin!', 10000);
+          }
+        } else if (message.indexOf('/inviteUser ') == 0) {
+          if (serverCreator == username  || rank == 'admin' || rank == 'owner') {
+            userExists(message.replace('/inviteUser ', '')) ? firebase.database().ref().child('servers').child(server).child('users').child(message.replace('/inviteUser ', '')).set('') : null;
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Server Creator And Admin)', 10000);
+          }
+        } else if (message.indexOf('/removeUser ') == 0) {
+          if (serverCreator == username  || rank == 'admin' || rank == 'owner') {
+            userExists(message.replace('/removeUser ', '')) ? firebase.database().ref().child('servers').child(server).child('users').child(message.replace('/removeUser ', '')).set(null) : null;
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Server Creator And Admin)', 10000);
+          }
+        } else if (message.indexOf('/deleteServer') == 0) {
+          if (serverCreator == username  || rank == 'admin' || rank == 'owner') {
+            firebase.database().ref().child('servers').child(server).set(null);
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Server Creator And Admin)', 10000);
+          }
+        } else if (message.indexOf('/inviteAll') == 0) {
+          if ((serverCreator == username && (rank == 'vip' || rank == 'mod' || rank == 'admin' || rank == 'owner')) || (rank == 'admin' || rank == 'owner')) {
+            inviteAll();
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Server Creator With VIP And Up (And Admin))', 10000);
+          }
+        } else if (message.indexOf('/createServer ') == 0) {
+          var newServerData = {
+            creator: username,
+            users: {},
+            messages: {}
+          };
+          newServerData.users[username] = '';
+          var createServer = true;
+          await firebase.database().ref().child('servers').once('value').then(data => {
+            for (var serverName in data.val()) {
+              (serverName == message.replace('/createSever ', '')) ? createServer = false: null
+            }
+          });
+          createServer ? firebase.database().ref().child('servers').child(message.replace('/createServer ', '')).set(newServerData) : null;
+        } else if (message.indexOf('/createUser ') == 0) {
+          if (rank == 'admin' || rank == 'owner') {
+            var userDataInput = message.replace('/createUser ', '').split(' ');
+            var newUserData = {
+              isKicked: false,
+              messageCSS: '',
+              password: userDataInput[1],
+              rank: userDataInput[2],
+            };
+            !userExists(userDataInput[0]) ? firebase.database().ref().child('users').child(userDataInput[0]).set(newUserData) : null;
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Admin Only)', 10000);
+          }
+        } else if (message.indexOf('/rankUser ') == 0) {
+          var userNameRank = '';
+          firebase.database().ref().child('users').child(message.replace('/rankUser ', '').split(' ')[0]).child('rank').once('value').then(data => {userNameRank = data.val()});
+          if ((rank == 'admin' || rank == 'owner') && ((userNameRank != 'admin' && userNameRank != 'owner') || rank == 'owner')) {
+            firebase.database().ref().child('users').child(message.replace('/rankUser ', '').split(' ')[0]).child('rank').set(message.replace('/rankUser ', '').split(' ')[1]);
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Admin Only)<br />Or You Are Trying To Excecute This Command On An Admin!', 10000);
+          }
+        } else if (message.indexOf('/setPFP ') == 0) {
+          firebase.database().ref().child('users').child(username).child('PFPURL').set(message.replace('/setPFP ', ''));
+        } else if (message.indexOf('/setServerPFP ') == 0) {
+          if ((serverCreator == username && (rank == 'vip' || rank == 'mod' || rank == 'admin' || rank == 'owner')) || (rank == 'admin' || rank == 'owner')) {
+            firebase.database().ref().child('servers').child(server).child('PFPURL').set(message.replace('/setServerPFP ', ''));
+          } else {
+            popup('You Don\'t Have Acces To This Command! (Server Creator With VIP And Up (And Admin))', 10000);
+          }
+        } else if (message.indexOf('/help ') == 0) {
+          help(message.replace('/help ', ''));
+        } else if (message.indexOf('/pm ') == 0) {
+          pm(message.replace('/pm ', ''));
+        } else if (message.indexOf('/about') == 0) {
+          var about = window.open('', '_blank');
+          about.document.documentElement.innerHTML = '<body style="text-align: center; color: #FFF; background-color: #000;"><br /><br /><code>Made By Bennett Lang (008400@mtka.org)<br /><br />Using Firebase SDK v8.10.1<br /><br />Changelog:<br />v1.0.0 Basic Version!<br />v1.0.1 Prevented The Form From Hiding The Messages At The Bottom.<br />v1.1.0 Added The Link Command.<br />v1.1.1 Made All Form Elements Required.<br />v2.0.0 Added User Login.<br />v2.1.0 Made Login Look Better.<br />v2.2.0 Added The Image Command.<br />v3.0.0 Added Chat Pins And More.<br />v3.1.0 Added Ranks And Made It So If You Have No CSS It Will Still Work.<br />v3.2.0 Added The Rank User Command And The Add User Command.<br />v4.0.0 Group Chats And More!<br />v4.1.0 Fixed Some Bugs And Added Some Things.<br />v4.2.0 Server Creators And Stuff.<br />v4.3.0 Private Messages And Mutes.<br />v4.3.1 Two Bug Fixes.<br />v4.4.0 Better Mutes!<br />v4.4.1 Creating Servers Actually Makes You The Server Creator.<br />v4.5.0 Popups And Now You Can\'t Excecute Commands On Admins If You Could Already.<br /><br />Commands:<br />"/link [Your Link] [Title]" Will Send A Hyper Link With Title. (All)<br />"/img [Your Link]" Will Send A Image. (All)<br />"/html [HTML]" Will Send A Message That Renders The HTML. (Admin Only)<br />"/messageCSS [CSS]" Will Style Your Messages With CSS If Wanted (PM Me For More Info). (VIP And Up)<br />"/kickUser [Username] [Reason]" Will Kick That User From The Whole Chat With A Reason Attached. (Admin Only)<br />"/allowUser [Username]" Will Un-Kick That User. (Admin Only)<br />"/showMessageBreaks [true/false]" Will Show Lines Between Messages. (VIP And Up)<br />"/muteUser [Username]" Will Mute That User In Just That Server. (Mod And Up)<br />"/unmuteUser [Username]" Will Un-Mute That User In Just That Server. (Mod And Up)<br />"/inviteUser [Username]" Will Invite/Add That User To Your Current Server. (Server Creator Or Admin)<br />"/removeUser [Username]" Will Remove That User From Your Current Server. (Server Creator Or Admin)<br />"/deleteServer" Will Delete Your Current Server. (Server Creator Or Admin)<br />"/inviteAll" Will Invite/Add Everyone To Your Current Server. (Server Creator With VIP And Up (And Admin))<br />"/createServer [Server Name]" Will Create A Server To Use If It Does Not Already Exist. (All)<br />"/createUser [Username] [Password] [Rank]" Will Create A User If It Does Not Already Exist. (Admin Only)<br />"/rankUser [Username] [Rank]" Will Rank That User To The Specified Rank. (Admin Only)<br />"/setPFP [Image URL]" Will Set Your Profile Picture To The Specified URL. (All)<br />"/setServerPFP [Image URL]" Will Set Your Current Server\'s Profile Picture To The Specified URL. (Server Creator With VIP And Up (And Admin))<br />"/help [Reason]" Will Create A Server If Not Already Created With The Name "help-[Specified Reason]" And Invite Me And You. (All)<br />"/pm [Who]" Will Create/Join A Server With The Name "[Your Username]-[Specified Username]" And Invite You And Specified Person. (All)<br />"/about" Will Open This. (All)</code></body>';
+        } else {
+          var newMessageRef = messageRef.push();
+          newMessageRef.set({
+            username: name,
+            message: message,
+            html: false,
+            time: getTimeAndDate(),
+            css: css,
+            rank: rank,
+            PFPURL: PFPURL,
+            creator: (serverCreator == username)
+          });
+        }
+      }
+
+      function addSpacer(TB) {
+        var spacer = renderMessage({
+          username: '',
+          message: '',
+          server: server,
+          html: true,
+          time: '',
+          css: 'color: var(--darkColor) !important; background-color: var(--darkColor) !important;',
+          rank: '',
+          PFPURL: '',
+          creator: false
+        }, false);
+        spacer.id = TB;
+        TB == 'topSpacer' ? document.querySelector('#messages').innerHTML = spacer.outerHTML : document.querySelector('#messages').innerHTML += spacer.outerHTML;
+      }
+
+      async function updateChat(globalDatabase) {
+        myDatabase = globalDatabase;
+        showMessageBreaks = false;
+        await firebase.database().ref().child('users').child(username).child('showMessageBreaks').once('value').then(data => {data.exists() ? showMessageBreaks = data.val() : null});
+        await firebase.database().ref().child('servers').once('value').then(data => {
+          addSpacer('topSpacer');
+
+          var messageContainer = document.createElement('div');
+          for (var messageId in data.val()[server].messages) {
+            messageContainer.appendChild(renderMessage(data.val()[server].messages[messageId], true));
+            var HR = document.createElement('hr');
+            HR.style = 'width: 100%; border: 1px solid var(--textColor); background-color: var(--textColor);';
+            showMessageBreaks ? messageContainer.appendChild(HR) : null;
+          }
+          document.querySelector('#messages').innerHTML += messageContainer.innerHTML;
+
+          addSpacer('bottomSpacer');
+          addServerUsers(data.val()[server].users);
+
+          addPinnedServers(data.val());
+        });
+        document.querySelector('#bottomSpacer').scrollIntoView({
+          block: 'end',
+          behavior: 'smooth'
+        });
+      }
+
+      function checkMyDatabase() {
+        firebase.database().ref().once('value').then(data => {
+          JSON.stringify(myDatabase) == JSON.stringify(data.val()) ? null : updateChat(data.val())
+        });
+      }
+
+    </script>
+  </body>
+
+</html>
